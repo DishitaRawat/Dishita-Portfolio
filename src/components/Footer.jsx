@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaHeart, FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaHeart, FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 
 const Footer = () => (
   <footer style={{ background:'#040f08', borderTop:'1px solid rgba(131,153,88,0.15)', padding:'48px 24px 28px' }}>
@@ -13,8 +13,12 @@ const Footer = () => (
         </div>
 
         <div style={{ display:'flex', gap:'14px' }}>
-          {[FaGithub, FaLinkedin, FaInstagram].map((Icon, i) => (
-            <motion.a key={i} href="#" whileHover={{ scale:1.15, y:-2 }}
+          {[
+            { Icon: FaGithub, label: 'GitHub', url: 'https://github.com/DishitaRawat', isExternal: true },
+            { Icon: FaLinkedin, label: 'LinkedIn', url: 'https://www.linkedin.com/in/dishita-rawat-235675313/', isExternal: true },
+            { Icon: FaEnvelope, label: 'Email', url: 'mailto:rawatdishita06@gmail.com', isExternal: false }
+          ].map(({ Icon, label, url, isExternal }, i) => (
+            <motion.a key={i} href={url} target={isExternal ? '_blank' : '_self'} rel={isExternal ? 'noopener noreferrer' : undefined} aria-label={label} whileHover={{ scale:1.15, y:-2 }}
               style={{ width:'40px', height:'40px', borderRadius:'50%', border:'1.5px solid rgba(211,150,140,0.25)', display:'flex', alignItems:'center', justifyContent:'center', color:'rgba(247,244,213,0.4)', fontSize:'1rem', transition:'all 0.3s', textDecoration:'none' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor='#D3968C'; e.currentTarget.style.color='#D3968C'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(211,150,140,0.25)'; e.currentTarget.style.color='rgba(247,244,213,0.4)'; }}

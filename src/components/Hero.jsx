@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { FaDownload, FaGithub, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaDownload, FaGithub, FaEnvelope, FaLinkedin } from 'react-icons/fa';
 
 /* Firefly canvas */
 const FireflyCanvas = () => {
@@ -154,8 +154,12 @@ const Hero = () => (
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.74 }} style={{ display: 'flex', gap: '14px' }}>
-            {[{ Icon: FaGithub, label: 'GitHub' }, { Icon: FaInstagram, label: 'Instagram' }, { Icon: FaLinkedin, label: 'LinkedIn' }].map(({ Icon, label }) => (
-              <motion.a key={label} href="#" whileHover={{ scale: 1.15, y: -2 }} aria-label={label}
+            {[
+              { Icon: FaGithub, label: 'GitHub', url: 'https://github.com/DishitaRawat', isExternal: true },
+              { Icon: FaLinkedin, label: 'LinkedIn', url: 'https://www.linkedin.com/in/dishita-rawat-235675313/', isExternal: true },
+              { Icon: FaEnvelope, label: 'Email', url: 'mailto:rawatdishita06@gmail.com', isExternal: false }
+            ].map(({ Icon, label, url, isExternal }) => (
+              <motion.a key={label} href={url} target={isExternal ? '_blank' : '_self'} rel={isExternal ? 'noopener noreferrer' : undefined} whileHover={{ scale: 1.15, y: -2 }} aria-label={label}
                 style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1.5px solid rgba(211,150,140,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(247,244,213,0.55)', fontSize: '1rem', transition: 'all 0.3s', textDecoration: 'none' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#D3968C'; e.currentTarget.style.color = '#D3968C'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(211,150,140,0.3)'; e.currentTarget.style.color = 'rgba(247,244,213,0.55)'; }}>

@@ -49,20 +49,23 @@ const Contact = () => {
           {/* Info cards */}
           <motion.div initial={{ opacity:0, x:-24 }} animate={inView ? { opacity:1, x:0 } : {}} transition={{ delay:0.2 }} style={{ display:'flex', flexDirection:'column', gap:'18px' }}>
             {[
-              { Icon:FaEnvelope, label:'Email', value:'hello@dishita.dev', color:'#D3968C' },
+              { Icon:FaEnvelope, label:'Email', value:'rawatdishita06@gmail.com', href:'mailto:rawatdishita06@gmail.com', color:'#D3968C' },
               { Icon:FaMapMarkerAlt, label:'Location', value:'India 🇮🇳', color:'#839958' },
               { Icon:FaPhone, label:'Phone', value:'+91 98765 43210', color:'#105666' },
-            ].map(({ Icon, label, value, color }) => (
-              <motion.div key={label} className="portfolio-card" whileHover={{ x:5, borderColor:color }} style={{ display:'flex', gap:'16px', alignItems:'center', padding:'18px 20px' }}>
-                <div style={{ width:'44px', height:'44px', borderRadius:'12px', background:`rgba(${color==='#D3968C'?'211,150,140':color==='#839958'?'131,153,88':'16,86,102'},0.15)`, border:`1px solid ${color}33`, display:'flex', alignItems:'center', justifyContent:'center', color, fontSize:'1rem', flexShrink:0 }}>
-                  <Icon />
-                </div>
-                <div>
-                  <div style={{ color:'rgba(247,244,213,0.4)', fontSize:'0.72rem', marginBottom:'2px', letterSpacing:'0.08em' }}>{label}</div>
-                  <div style={{ color:'#F7F4D5', fontSize:'0.88rem', fontWeight:500 }}>{value}</div>
-                </div>
-              </motion.div>
-            ))}
+            ].map(({ Icon, label, value, href, color }) => {
+              const Content = (
+                <motion.div key={label} className="portfolio-card" whileHover={{ x:5, borderColor:color }} style={{ display:'flex', gap:'16px', alignItems:'center', padding:'18px 20px', textDecoration:'none' }}>
+                  <div style={{ width:'44px', height:'44px', borderRadius:'12px', background:`rgba(${color==='#D3968C'?'211,150,140':color==='#839958'?'131,153,88':'16,86,102'},0.15)`, border:`1px solid ${color}33`, display:'flex', alignItems:'center', justifyContent:'center', color, fontSize:'1rem', flexShrink:0 }}>
+                    <Icon />
+                  </div>
+                  <div>
+                    <div style={{ color:'rgba(247,244,213,0.4)', fontSize:'0.72rem', marginBottom:'2px', letterSpacing:'0.08em' }}>{label}</div>
+                    <div style={{ color:'#F7F4D5', fontSize:'0.88rem', fontWeight:500 }}>{value}</div>
+                  </div>
+                </motion.div>
+              );
+              return href ? <a key={label} href={href} style={{ textDecoration:'none' }}>{Content}</a> : Content;
+            })}
 
             {/* Available badge */}
             <div style={{ display:'flex', alignItems:'center', gap:'12px', padding:'16px 20px', background:'rgba(131,153,88,0.1)', border:'1px solid rgba(131,153,88,0.25)', borderRadius:'14px' }}>

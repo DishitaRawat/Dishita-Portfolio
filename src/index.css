@@ -291,6 +291,18 @@ h1, h2, h3 { font-family: 'Playfair Display', serif; }
     radial-gradient(circle at 60% 80%, rgba(211,150,140,0.05) 0%, transparent 40%);
 }
 
+/* ─── MARQUEE ───────────────────────────────────────────────── */
+.marquee-track {
+  animation: marqueeScroll 28s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
 /* ─── RESPONSIVE ────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .stat-number { font-size: 2rem; }

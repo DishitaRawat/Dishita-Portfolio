@@ -68,13 +68,22 @@ const Navbar = () => {
             gap: '8px',
           }}
         >
-          <span style={{
-            display: 'inline-block',
-            width: '32px', height: '32px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #D3968C, #b57a72)',
-            flexShrink: 0,
-          }} />
+          <div style={{
+            width: '34px', height: '34px', borderRadius: '50%',
+            padding: '2px', flexShrink: 0,
+            background: 'linear-gradient(135deg, #D3968C, #839958)',
+            boxShadow: '0 0 10px rgba(211,150,140,0.4)',
+          }}>
+            <img
+              src="/Profile.jpeg"
+              alt="Dishita"
+              style={{
+                width: '100%', height: '100%',
+                borderRadius: '50%', objectFit: 'cover',
+                objectPosition: 'center 5%', display: 'block',
+              }}
+            />
+          </div>
           Dishita
         </motion.div>
 
@@ -90,15 +99,7 @@ const Navbar = () => {
               {link.label}
             </button>
           ))}
-          <motion.button
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
-            className="btn-primary"
-            style={{ padding: '9px 22px', fontSize: '0.8rem' }}
-            onClick={() => scrollTo('contact')}
-          >
-            Hire Me
-          </motion.button>
+
         </div>
 
         {/* Mobile toggle */}

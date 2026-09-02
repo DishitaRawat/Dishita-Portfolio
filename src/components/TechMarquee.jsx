@@ -1,39 +1,83 @@
 import React from 'react';
 
-const techStack = [
-  { name: 'React JS', icon: '⚛️' },
-  { name: 'Vue JS', icon: '🍃' },
-  { name: 'Tailwind CSS', icon: '🌊' },
-  { name: 'Next JS', icon: '▲' },
-  { name: 'Node JS', icon: '🌿' },
-  { name: 'MongoDB', icon: '🌱' },
-  { name: 'TypeScript', icon: '💙' },
-  { name: 'Python', icon: '🐍' },
-  { name: 'Figma', icon: '🎨' },
-  { name: 'Docker', icon: '🐋' },
+const MARQUEE_ITEMS = [
+  'FULL-STACK DEVELOPMENT',
+  'GENERATIVE AI & RAG',
+  'CLEAN CODE',
+  'DATA SCIENCE',
+  'SEMANTIC SEARCH',
+  'SCALABLE ARCHITECTURE',
+  'REASONING WORKSPACES',
 ];
 
 const TechMarquee = () => {
-  const doubled = [...techStack, ...techStack];
-  return (
-    <div style={{
-      background: 'rgba(7,28,18,0.9)',
-      borderTop: '1px solid rgba(131,153,88,0.18)',
-      borderBottom: '1px solid rgba(131,153,88,0.18)',
-      padding: '18px 0',
-      overflow: 'hidden',
-      position: 'relative',
-    }}>
-      {/* Fade edges */}
-      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:'120px', background:'linear-gradient(to right, rgba(7,28,18,1), transparent)', zIndex:2, pointerEvents:'none' }} />
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'120px', background:'linear-gradient(to left, rgba(7,28,18,1), transparent)', zIndex:2, pointerEvents:'none' }} />
+  const doubled = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
 
-      <div className="marquee-track" style={{ display:'flex', gap:'52px', width:'max-content' }}>
-        {doubled.map((tech, i) => (
-          <div key={i} style={{ display:'flex', alignItems:'center', gap:'10px', whiteSpace:'nowrap' }}>
-            <span style={{ fontSize:'1.1rem' }}>{tech.icon}</span>
-            <span style={{ color:'rgba(247,244,213,0.5)', fontSize:'0.88rem', fontWeight:500, letterSpacing:'0.04em' }}>{tech.name}</span>
-            <span style={{ color:'rgba(131,153,88,0.35)', marginLeft:'18px', fontSize:'1rem' }}>✦</span>
+  return (
+    <div
+      style={{
+        background: 'linear-gradient(90deg, #071c12 0%, #0d2e1f 50%, #071c12 100%)',
+        borderTop: '1px solid rgba(211,150,140,0.25)',
+        borderBottom: '1px solid rgba(211,150,140,0.25)',
+        padding: '24px 0',
+        overflow: 'hidden',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      {/* Soft gradient fade edges */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: '140px',
+          background: 'linear-gradient(to right, #071c12 0%, transparent 100%)',
+          zIndex: 2,
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: '140px',
+          background: 'linear-gradient(to left, #071c12 0%, transparent 100%)',
+          zIndex: 2,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Marquee Track */}
+      <div
+        className="marquee-track"
+        style={{
+          display: 'flex',
+          gap: '64px',
+          width: 'max-content',
+          alignItems: 'center',
+        }}
+      >
+        {doubled.map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '32px', whiteSpace: 'nowrap' }}>
+            <span
+              style={{
+                fontFamily: 'Playfair Display, serif',
+                fontSize: 'clamp(1.2rem, 2.2vw, 1.65rem)',
+                fontWeight: 800,
+                color: '#F7F4D5',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                textShadow: '0 0 20px rgba(247,244,213,0.2)',
+              }}
+            >
+              {item}
+            </span>
+            <span style={{ color: '#D3968C', fontSize: '1.2rem', opacity: 0.8 }}>✦</span>
           </div>
         ))}
       </div>

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 /* ─── Project Data ─────────────────────────────────────────── */
@@ -7,555 +7,477 @@ const PROJECTS = [
   {
     id: 0,
     title: 'VoxVault',
-    subtitle: 'Voice AI Platform',
+    subtitle: 'Source-Grounded Media Intelligence System',
     description:
-      'A voice-based AI vault application with real-time speech recognition, intelligent processing, and a beautiful UI. Built for seamless, hands-free interaction with your data.',
-    tags: ['React', 'Python', 'FastAPI', 'AI', 'WebSockets'],
-    github: '#',
-    demo: '#',
-    color: '#D3968C',
+      'Interactive knowledge workspace for extracting and exploring insights from long-form media. AI-powered platform that converts long-form audio/video into a searchable knowledge base using transcription, semantic search, and RAG. Enables users to ask questions and retrieve context-aware answers from their content.',
+    tags: ['Generative AI', 'RAG', 'Semantic Search', 'FastAPI', 'Vector Database'],
+    github: 'https://github.com/DishitaRawat/VoxVault',
+    demo: 'https://drive.google.com/file/d/1u7ByDMBWZubZfzRgE6wWKkZzFc3IaqJD/view?usp=sharing',
+    color: '#105666',
     icon: '🎙️',
-    year: '2024',
+    year: '2026',
   },
   {
     id: 1,
-    title: 'Portfolio v2',
-    subtitle: 'Personal Portfolio',
+    title: 'AdAura Studio',
+    subtitle: 'UGC Content Generation Platform',
     description:
-      'My personal portfolio with stunning animations, botanical garden aesthetic, smooth scroll interactions, and a rotating circular project carousel built with Framer Motion.',
-    tags: ['React', 'Tailwind CSS', 'Framer Motion', 'GSAP'],
-    github: '#',
-    demo: '#',
+      'An AI-powered platform for generating high-converting user-generated ad content, leveraging modern AI models, automated workflows, and high-performance rendering. A system that creates engaging, platform-ready content and advertisements from user inputs.Built to streamline content creation using Generative AI, helping creators and brands generate marketing content faster.',
+    tags: ['React', 'Python', 'FastAPI', 'Generative AI', 'RAG'],
+    github: 'https://github.com/DishitaRawat/AdAura_UGC_Ad_Generator',
+    demo: 'https://vimeo.com/1180756553',
     color: '#839958',
-    icon: '🌿',
-    year: '2024',
+    icon: '✨',
+    year: '2026',
   },
+
   {
     id: 2,
-    title: 'AI Chat Interface',
-    subtitle: 'AI SaaS Product',
+    title: 'MLCrafter V2',
+    subtitle: 'Automated ML Workspace',
     description:
-      'A sophisticated AI chat interface with real-time streaming responses, markdown rendering, syntax-highlighted code blocks, and a clean, modern design powered by GPT-4.',
-    tags: ['Next.js', 'OpenAI', 'TypeScript', 'Prisma'],
-    github: '#',
-    demo: '#',
-    color: '#105666',
-    icon: '✦',
-    year: '2023',
-  },
-  {
-    id: 3,
-    title: 'E-Commerce Dashboard',
-    subtitle: 'Full-Stack Web App',
-    description:
-      'Full-stack e-commerce dashboard with real-time analytics, inventory management, order processing, and beautiful data visualizations using Recharts.',
-    tags: ['React', 'Node.js', 'MongoDB', 'Recharts'],
-    github: '#',
+      'An end-to-end automated machine learning platform allowing users to clean datasets, train multiple models, compare metrics, and deploy models seamlessly.',
+    tags: ['Python', 'Data Science', 'Machine Learning', 'Streamlit'],
+    github: 'https://github.com/DishitaRawat',
     demo: '#',
     color: '#D3968C',
-    icon: '📊',
-    year: '2023',
+    icon: '⚙️',
+    year: '2025',
   },
 ];
 
-/* ─── Circular Wheel Config ────────────────────────────────── */
-// Radius of the virtual circle the thumbnails sit on
-const WHEEL_RADIUS = 460;
-// Angular spread between items (degrees)
-const ITEM_ANGLE_STEP = 24;
+/* Helper to parse Google Drive, Vimeo, YouTube, or direct video links */
+const getVideoEmbedUrl = (project) => {
+  const url = project.demo || project.video;
+  if (!url || url === '#') return null;
 
-function itemAngle(index, activeIndex, total) {
-  const offset = index - activeIndex;
-  return offset * ITEM_ANGLE_STEP;
-}
+  /* Vimeo video link */
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/);
+  if (vimeoMatch && vimeoMatch[1]) {
+    return { type: 'iframe', src: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&autopause=0` };
+  }
 
-// Convert polar (angle from bottom) → cartesian offset on an arc
-function arcPosition(angleDeg, radius) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return {
-    x: radius * Math.sin(rad),
-    y: -radius * (1 - Math.cos(rad)), // negative = upward
-  };
-}
+  /* Google Drive video preview link */
+  const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return { type: 'iframe', src: `https://drive.google.com/file/d/${driveMatch[1]}/preview` };
+  }
 
-/* ─── Single Wheel Thumbnail ───────────────────────────────── */
-const WheelThumb = ({ project, angleDeg, isActive, onClick }) => {
-  const pos = arcPosition(angleDeg, WHEEL_RADIUS);
-  const absAngle = Math.abs(angleDeg);
+  /* YouTube video link */
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]+)/);
+  if (ytMatch && ytMatch[1]) {
+    return { type: 'iframe', src: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1` };
+  }
 
-  // scale & opacity fall off as items move away from centre
-  const scale = isActive ? 1 : Math.max(0.55, 1 - absAngle / 90);
-  const opacity = isActive ? 1 : Math.max(0.35, 1 - absAngle / 70);
-  const blur = isActive ? 0 : Math.min(3, absAngle / 14);
-  // slight tilt following the arc
-  const rotate = angleDeg * 0.3;
+  /* Direct MP4/WebM video file */
+  if (url.match(/\.(mp4|webm|ogg)$/i)) {
+    return { type: 'video', src: url };
+  }
 
-  const thumbW = isActive ? 170 : 130;
-  const thumbH = isActive ? 220 : 165;
-
-  return (
-    <motion.div
-      onClick={onClick}
-      animate={{
-        x: pos.x,
-        y: pos.y,
-        scale,
-        opacity,
-        rotate,
-        filter: `blur(${blur}px)`,
-      }}
-      transition={{ type: 'spring', stiffness: 200, damping: 26 }}
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        left: '50%',
-        marginLeft: `-${thumbW / 2}px`,
-        width: thumbW,
-        height: thumbH,
-        cursor: isActive ? 'default' : 'pointer',
-        zIndex: isActive ? 10 : Math.max(1, 9 - Math.round(absAngle / 10)),
-        transformOrigin: 'bottom center',
-      }}
-    >
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          border: isActive
-            ? `2.5px solid ${project.color}`
-            : '1.5px solid rgba(247,244,213,0.07)',
-          boxShadow: isActive
-            ? `0 0 40px ${project.color}55, 0 20px 60px rgba(0,0,0,0.6)`
-            : '0 8px 32px rgba(0,0,0,0.5)',
-          transition: 'border 0.4s, box-shadow 0.4s',
-          position: 'relative',
-          background: `linear-gradient(135deg, #0d3d2a, #071c12)`,
-        }}
-      >
-        {/* Abstract botanical art card */}
-        <div style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {/* Gradient bg */}
-          <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 40%, ${project.color}22 0%, transparent 60%), radial-gradient(ellipse at 70% 70%, rgba(131,153,88,0.15) 0%, transparent 50%)` }} />
-          {/* Centre icon */}
-          <div style={{ fontSize: isActive ? '2.8rem' : '2rem', zIndex: 1, filter: `drop-shadow(0 0 8px ${project.color}88)` }}>
-            {project.icon}
-          </div>
-          {/* Decorative rings */}
-          <div style={{ position: 'absolute', inset: '12px', borderRadius: '50%', border: `1px solid ${project.color}22` }} />
-          <div style={{ position: 'absolute', inset: '22px', borderRadius: '50%', border: `1px dashed ${project.color}15` }} />
-          {/* Project name overlay bottom */}
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '8px', background: `linear-gradient(to top, ${project.color}33, transparent)`, textAlign: 'center' }}>
-            <span style={{ color: '#F7F4D5', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.06em', opacity: 0.8 }}>{project.title}</span>
-          </div>
-        </div>
-        {/* Active badge */}
-        {isActive && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            style={{ position: 'absolute', top: '8px', right: '8px', background: project.color, color: '#F7F4D5', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', letterSpacing: '0.05em' }}>
-            ● NOW
-          </motion.div>
-        )}
-      </div>
-    </motion.div>
-  );
+  return null;
 };
 
-/* ─── Main Projects Component ──────────────────────────────── */
 const Projects = () => {
   const [activeIdx, setActiveIdx] = useState(0);
-  const [dragging, setDragging] = useState(false);
-  const dragStartX = useRef(0);
-  const dragStartIdx = useRef(0);
-  const containerRef = useRef(null);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.1 });
 
   const active = PROJECTS[activeIdx];
-  const total = PROJECTS.length;
+  const videoEmbed = getVideoEmbedUrl(active);
 
-  /* Arrow navigation */
-  const goNext = useCallback(() => setActiveIdx(i => (i + 1) % total), [total]);
-  const goPrev = useCallback(() => setActiveIdx(i => (i - 1 + total) % total), [total]);
-
-  /* Keyboard */
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'ArrowRight') goNext();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [goNext, goPrev]);
-
-  /* Drag / swipe on the wheel area */
-  const handleDragStart = (e) => {
-    setDragging(false);
-    dragStartX.current = e.touches ? e.touches[0].clientX : e.clientX;
-    dragStartIdx.current = activeIdx;
+  const handleNext = () => {
+    setActiveIdx((prev) => (prev + 1) % PROJECTS.length);
   };
-  const handleDragMove = (e) => {
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const delta = dragStartX.current - clientX;
-    if (Math.abs(delta) > 8) setDragging(true);
-    const steps = Math.round(delta / 80);
-    const newIdx = Math.min(total - 1, Math.max(0, dragStartIdx.current + steps));
-    setActiveIdx(newIdx);
+
+  const handlePrev = () => {
+    setActiveIdx((prev) => (prev - 1 + PROJECTS.length) % PROJECTS.length);
   };
-  const handleDragEnd = () => setDragging(false);
 
   return (
     <section
       id="projects"
       style={{
-        padding: '100px 0 0',
-        background: 'linear-gradient(180deg, #071c12 0%, #0A3323 100%)',
+        padding: '120px 24px',
+        background: 'linear-gradient(180deg, #0A3323 0%, #071c12 100%)',
         position: 'relative',
         overflow: 'hidden',
-        minHeight: '100vh',
       }}
     >
-      {/* ── Ambient background glow ── */}
-      <motion.div
-        key={activeIdx}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        style={{
-          position: 'absolute',
-          top: '10%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '700px',
-          height: '400px',
-          background: `radial-gradient(ellipse, ${active.color}22 0%, transparent 70%)`,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
-        {/* ── Section header ── */}
+      <div style={{ maxWidth: '1140px', margin: '0 auto' }} ref={ref}>
+        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: '60px' }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          style={{ textAlign: 'center', marginBottom: '64px' }}
         >
-          <p className="section-label" style={{ marginBottom: '8px' }}>🌸 MY WORK</p>
-          <h2 style={{
-            fontFamily: 'Outfit, sans-serif',
-            fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: 800,
-          }}>
-            <span style={{ color: '#fff' }}>Featured </span>
-            <span className="gradient-text">Projects</span>
-          </h2>
-        </motion.div>
-
-        {/* ── Project Detail Panel ── */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeIdx}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.42, ease: 'easeOut' }}
+          <p className="section-label" style={{ marginBottom: '10px' }}>
+            ✦ FEATURED WORK
+          </p>
+          <h2
             style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '48px',
-              alignItems: 'center',
-              marginBottom: '20px',
+              fontFamily: 'Playfair Display, serif',
+              fontSize: 'clamp(2rem,4vw,3rem)',
+              fontWeight: 700,
+              color: '#F7F4D5',
             }}
           >
-            {/* Left — Info */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <span style={{
-                  background: `linear-gradient(135deg, ${active.color}, ${active.color}88)`,
-                  color: '#fff',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  padding: '4px 14px',
-                  borderRadius: '20px',
-                  letterSpacing: '0.08em',
-                }}>{active.year}</span>
-                <span style={{ color: '#8888aa', fontSize: '0.82rem' }}>{active.subtitle}</span>
-              </div>
+            Featured <span style={{ fontStyle: 'italic', color: '#D3968C' }}>Projects</span>
+          </h2>
+          <div className="divider" style={{ margin: '16px auto' }} />
+          <p style={{ color: 'rgba(247,244,213,0.5)', fontSize: '0.9rem' }}>
+            Explore my latest applications, AI platforms, and open-source projects.
+          </p>
+        </motion.div>
 
-              <h3 style={{
-                fontFamily: 'Outfit, sans-serif',
-                fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
-                fontWeight: 900,
-                lineHeight: 1.1,
-                marginBottom: '20px',
-                background: `linear-gradient(135deg, #fff 30%, ${active.color})`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>{active.title}</h3>
-
-              <p style={{ color: '#aaaacc', lineHeight: 1.8, fontSize: '0.95rem', marginBottom: '24px' }}>
-                {active.description}
-              </p>
-
-              {/* Tags */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
-                {active.tags.map(tag => (
-                  <span key={tag} className="skill-tag">{tag}</span>
-                ))}
-              </div>
-
-              {/* Buttons */}
-              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                <motion.a
-                  href={active.demo}
-                  className="btn-primary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{ background: `linear-gradient(135deg, ${active.color}, ${active.color}aa)` }}
-                >
-                  <FaExternalLinkAlt style={{ fontSize: '0.8rem' }} /> Live Demo
-                </motion.a>
-                <motion.a
-                  href={active.github}
-                  className="btn-outline"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{ borderColor: active.color, color: active.color }}
-                >
-                  <FaGithub /> GitHub
-                </motion.a>
-              </div>
-
-              {/* Project counter */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '32px' }}>
-                {PROJECTS.map((_, i) => (
-                  <motion.div
-                    key={i}
-                    onClick={() => setActiveIdx(i)}
-                    animate={{
-                      width: i === activeIdx ? 32 : 8,
-                      background: i === activeIdx ? active.color : 'rgba(255,255,255,0.2)',
-                    }}
+        {/* ── Active Project Showcase Card ── */}
+        <div style={{ position: 'relative' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeIdx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1.1fr 1fr',
+                gap: '56px',
+                alignItems: 'center',
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '24px',
+                padding: '44px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+                backdropFilter: 'blur(12px)',
+                position: 'relative',
+              }}
+              className="project-showcase-grid"
+            >
+              {/* Left — Info & Details */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+                  <span
                     style={{
-                      height: '8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
+                      fontFamily: 'Playfair Display, serif',
+                      fontSize: '1.2rem',
+                      fontWeight: 700,
+                      fontStyle: 'italic',
+                      color: active.color,
                     }}
-                  />
-                ))}
+                  >
+                    0{activeIdx + 1}
+                  </span>
+                  <span
+                    style={{
+                      background: `rgba(${active.color === '#D3968C' ? '211,150,140' : active.color === '#839958' ? '131,153,88' : '16,86,102'},0.2)`,
+                      color: active.color,
+                      border: `1px solid ${active.color}44`,
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      padding: '4px 14px',
+                      borderRadius: '20px',
+                      letterSpacing: '0.06em',
+                      fontFamily: 'DM Sans, sans-serif',
+                    }}
+                  >
+                    {active.year}
+                  </span>
+                  <span style={{ color: 'rgba(247,244,213,0.45)', fontSize: '0.84rem', fontFamily: 'DM Sans, sans-serif' }}>
+                    {active.subtitle}
+                  </span>
+                </div>
+
+                <h3
+                  style={{
+                    fontFamily: 'Playfair Display, serif',
+                    fontSize: 'clamp(2.2rem, 3.8vw, 3rem)',
+                    fontWeight: 700,
+                    lineHeight: 1.1,
+                    marginBottom: '20px',
+                    color: '#F7F4D5',
+                  }}
+                >
+                  {active.title}
+                </h3>
+
+                <p
+                  style={{
+                    color: 'rgba(247,244,213,0.62)',
+                    lineHeight: 1.85,
+                    fontSize: '0.96rem',
+                    marginBottom: '28px',
+                    fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  {active.description}
+                </p>
+
+                {/* Tags */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '36px' }}>
+                  {active.tags.map((tag) => (
+                    <span key={tag} className="skill-tag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <motion.a
+                    href={active.demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    style={{
+                      background: active.color,
+                      borderColor: active.color,
+                      color: '#071c12',
+                      fontWeight: 700,
+                      padding: '12px 26px',
+                      borderRadius: '30px',
+                      fontSize: '0.82rem',
+                    }}
+                  >
+                    <FaExternalLinkAlt style={{ fontSize: '0.75rem' }} /> Live Demo
+                  </motion.a>
+                  <motion.a
+                    href={active.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-outline"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    style={{
+                      borderColor: `${active.color}66`,
+                      color: active.color,
+                      padding: '12px 26px',
+                      borderRadius: '30px',
+                      fontSize: '0.82rem',
+                    }}
+                  >
+                    <FaGithub style={{ fontSize: '0.9rem' }} /> GitHub
+                  </motion.a>
+                </div>
               </div>
+
+              {/* Right — Abstract Showcase Panel */}
+              <div style={{ position: 'relative' }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: '-12px',
+                    borderRadius: '28px',
+                    background: `radial-gradient(circle, ${active.color}1e 0%, transparent 70%)`,
+                    zIndex: 0,
+                    filter: 'blur(20px)',
+                  }}
+                />
+                <motion.div
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    border: `1px solid ${active.color}33`,
+                    boxShadow: `0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)`,
+                    aspectRatio: '4/3',
+                    background: `linear-gradient(135deg, #071c12 0%, #0d3d2a 50%, #071c12 100%)`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justify: 'center',
+                  }}
+                >
+                  {videoEmbed ? (
+                    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 2, background: '#000' }}>
+                      {videoEmbed.type === 'video' ? (
+                        <video
+                          src={videoEmbed.src}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          controls
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            borderRadius: '20px',
+                          }}
+                        />
+                      ) : (
+                        <iframe
+                          src={videoEmbed.src}
+                          title={`${active.title} Demo Video`}
+                          allow="autoplay; encrypted-media; picture-in-picture"
+                          allowFullScreen
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            border: 'none',
+                            borderRadius: '20px',
+                          }}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      {/* Grid overlay lines */}
+                      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              position: 'absolute',
+                              left: 0,
+                              right: 0,
+                              top: `${(i + 1) * 16.66}%`,
+                              height: '1px',
+                              background: 'rgba(247,244,213,0.03)',
+                            }}
+                          />
+                        ))}
+                        {[...Array(8)].map((_, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              bottom: 0,
+                              left: `${(i + 1) * 12.5}%`,
+                              width: '1px',
+                              background: 'rgba(247,244,213,0.03)',
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Icon & Title */}
+                      <div style={{ zIndex: 2, textAlign: 'center', padding: '20px' }}>
+                        <div style={{ fontSize: '4.2rem', marginBottom: '14px', filter: `drop-shadow(0 0 24px ${active.color}aa)` }}>
+                          {active.icon}
+                        </div>
+                        <div
+                          style={{
+                            fontFamily: 'Playfair Display, serif',
+                            fontSize: '1.6rem',
+                            fontWeight: 700,
+                            fontStyle: 'italic',
+                            color: '#F7F4D5',
+                            letterSpacing: '0.02em',
+                          }}
+                        >
+                          {active.title}
+                        </div>
+                      </div>
+
+                      {/* Gradient Glow Wash */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: '40%',
+                          background: `linear-gradient(to top, ${active.color}22, transparent)`,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    </>
+                  )}
+                </motion.div>
+
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation Controls & Pagination Dots */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'space-between',
+              marginTop: '28px',
+              padding: '0 8px',
+            }}
+          >
+            {/* Pagination Dots */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {PROJECTS.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveIdx(i)}
+                  style={{ all: 'unset', cursor: 'pointer', padding: '4px' }}
+                  aria-label={`Go to project ${i + 1}`}
+                >
+                  <motion.div
+                    animate={{
+                      width: i === activeIdx ? 28 : 8,
+                      background: i === activeIdx ? active.color : 'rgba(247,244,213,0.2)',
+                    }}
+                    transition={{ duration: 0.3 }}
+                    style={{ height: '6px', borderRadius: '3px' }}
+                  />
+                </button>
+              ))}
             </div>
 
-            {/* Right — Abstract project art panel */}
-            <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: '-16px', borderRadius: '32px', background: `radial-gradient(ellipse, ${active.color}1a 0%, transparent 70%)`, zIndex: 0 }} />
-              <motion.div
+            {/* Prev / Next Arrows */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <motion.button
+                onClick={handlePrev}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Previous project"
                 style={{
-                  position: 'relative', zIndex: 1, borderRadius: '24px', overflow: 'hidden',
-                  border: `1.5px solid ${active.color}44`,
-                  boxShadow: `0 0 50px ${active.color}22, 0 24px 60px rgba(0,0,0,0.5)`,
-                  aspectRatio: '4/3',
-                  background: `linear-gradient(135deg, #071c12 0%, #0d3d2a 50%, #071c12 100%)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#F7F4D5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'center',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
                 }}
-                layoutId="active-project-art"
               >
-                {/* Multi-layer abstract botanical art */}
-                <div style={{ position: 'absolute', inset: 0 }}>
-                  {/* Gradient layers */}
-                  <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 25% 30%, ${active.color}22 0%, transparent 50%)` }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 75% 70%, rgba(131,153,88,0.12) 0%, transparent 50%)' }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 100%, rgba(16,86,102,0.15) 0%, transparent 40%)' }} />
-                  {/* Grid lines */}
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: `${(i + 1) * 16.66}%`, height: '1px', background: 'rgba(247,244,213,0.03)' }} />
-                  ))}
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: `${(i + 1) * 12.5}%`, width: '1px', background: 'rgba(247,244,213,0.03)' }} />
-                  ))}
-                </div>
-                {/* Large icon */}
-                <div style={{ zIndex: 1, textAlign: 'center' }}>
-                  <div style={{ fontSize: '4rem', marginBottom: '12px', filter: `drop-shadow(0 0 20px ${active.color})` }}>{active.icon}</div>
-                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', fontWeight: 600, fontStyle: 'italic', color: '#F7F4D5', opacity: 0.7, letterSpacing: '0.02em' }}>{active.title}</div>
-                </div>
-                {/* Bottom colour wash */}
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '35%', background: `linear-gradient(to top, ${active.color}33, transparent)` }} />
-              </motion.div>
-
-              {/* Floating number badge */}
-              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-                style={{ position: 'absolute', top: '-18px', right: '-18px', width: '56px', height: '56px', borderRadius: '50%', background: `linear-gradient(135deg, ${active.color}, ${active.color}88)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Playfair Display, serif', fontWeight: 700, fontStyle: 'italic', fontSize: '1.3rem', color: '#F7F4D5', boxShadow: `0 8px 24px ${active.color}55`, zIndex: 2 }}>
-                0{activeIdx + 1}
-              </motion.div>
+                <FaChevronLeft />
+              </motion.button>
+              <motion.button
+                onClick={handleNext}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Next project"
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#F7F4D5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'center',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                }}
+              >
+                <FaChevronRight />
+              </motion.button>
             </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* ── View All button between panel and wheel ── */}
-      <div style={{ textAlign: 'center', position: 'relative', zIndex: 5, marginBottom: '-10px' }}>
-        <motion.button
-          className="btn-outline"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
-          style={{ borderColor: active.color, color: active.color, fontSize: '0.82rem', padding: '8px 24px', fontFamily: 'DM Sans, sans-serif' }}
-        >
-          View All Projects
-        </motion.button>
-      </div>
-
-      {/* ── Circular Wheel ── */}
-      <div
-        ref={containerRef}
-        onMouseDown={handleDragStart}
-        onMouseMove={dragging ? handleDragMove : undefined}
-        onMouseUp={handleDragEnd}
-        onMouseLeave={handleDragEnd}
-        onTouchStart={handleDragStart}
-        onTouchMove={handleDragMove}
-        onTouchEnd={handleDragEnd}
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '380px',
-          cursor: dragging ? 'grabbing' : 'grab',
-          userSelect: 'none',
-          overflow: 'visible',
-        }}
-      >
-        {/* The big pink arc / half-circle backdrop */}
-        <div style={{
-          position: 'absolute',
-          bottom: '-360px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '1000px',
-          height: '1000px',
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse at center, rgba(211,150,140,0.12) 0%, rgba(131,153,88,0.06) 40%, transparent 68%)',
-          border: '1.5px solid rgba(131,153,88,0.2)',
-          boxShadow: 'inset 0 0 40px rgba(211,150,140,0.04)',
-          pointerEvents: 'none',
-          zIndex: 1,
-        }} />
-
-        {/* Thumbnails on the wheel */}
-        <div style={{
-          position: 'absolute',
-          bottom: '-260px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 0,
-          height: 0,
-          zIndex: 5,
-        }}>
-          {PROJECTS.map((project, i) => {
-            const angle = itemAngle(i, activeIdx, total);
-            return (
-              <WheelThumb
-                key={project.id}
-                project={project}
-                angleDeg={angle}
-                isActive={i === activeIdx}
-                onClick={() => !dragging && setActiveIdx(i)}
-              />
-            );
-          })}
+          </div>
         </div>
-
-        {/* Left / Right navigation arrows */}
-        <motion.button
-          onClick={goPrev}
-          whileHover={{ scale: 1.1, x: -3 }}
-          whileTap={{ scale: 0.9 }}
-          disabled={activeIdx === 0}
-          style={{
-            position: 'absolute',
-            left: 'calc(50% - 280px)',
-            bottom: '130px',
-            zIndex: 20,
-            background: 'rgba(233,30,140,0.15)',
-            border: '1.5px solid rgba(233,30,140,0.4)',
-            borderRadius: '50%',
-            width: '48px',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#e91e8c',
-            fontSize: '1rem',
-            cursor: activeIdx === 0 ? 'not-allowed' : 'pointer',
-            opacity: activeIdx === 0 ? 0.3 : 1,
-            transition: 'opacity 0.3s',
-          }}
-          aria-label="Previous project"
-        >
-          <FaChevronLeft />
-        </motion.button>
-
-        <motion.button
-          onClick={goNext}
-          whileHover={{ scale: 1.1, x: 3 }}
-          whileTap={{ scale: 0.9 }}
-          disabled={activeIdx === total - 1}
-          style={{
-            position: 'absolute',
-            right: 'calc(50% - 280px)',
-            bottom: '130px',
-            zIndex: 20,
-            background: 'rgba(233,30,140,0.15)',
-            border: '1.5px solid rgba(233,30,140,0.4)',
-            borderRadius: '50%',
-            width: '48px',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#e91e8c',
-            fontSize: '1rem',
-            cursor: activeIdx === total - 1 ? 'not-allowed' : 'pointer',
-            opacity: activeIdx === total - 1 ? 0.3 : 1,
-            transition: 'opacity 0.3s',
-          }}
-          aria-label="Next project"
-        >
-          <FaChevronRight />
-        </motion.button>
-
-        {/* Drag hint */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          style={{
-            position: 'absolute',
-            bottom: '12px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            color: 'rgba(255,255,255,0.25)',
-            fontSize: '0.72rem',
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            whiteSpace: 'nowrap',
-            zIndex: 20,
-          }}
-        >
-          ← drag or click to explore →
-        </motion.p>
-
-        {/* Bottom gradient to blend into next section */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0, left: 0, right: 0,
-          height: '60px',
-          background: 'linear-gradient(to bottom, transparent, #071c12)',
-          zIndex: 15,
-          pointerEvents: 'none',
-        }} />
       </div>
+
+      <style>{`
+        @media (max-width: 900px) {
+          .project-showcase-grid { grid-template-columns: 1fr !important; gap: 36px !important; padding: 28px !important; }
+        }
+      `}</style>
     </section>
   );
 };

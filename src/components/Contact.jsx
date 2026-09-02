@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { FaEnvelope, FaMapMarkerAlt, FaPhone, FaPaperPlane } from 'react-icons/fa';
+import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
 
 const Contact = () => {
   const ref = useRef(null);
@@ -47,11 +47,10 @@ const Contact = () => {
 
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1.6fr', gap:'48px' }} className="contact-grid">
           {/* Info cards */}
-          <motion.div initial={{ opacity:0, x:-24 }} animate={inView ? { opacity:1, x:0 } : {}} transition={{ delay:0.2 }} style={{ display:'flex', flexDirection:'column', gap:'18px' }}>
+          <motion.div initial={{ opacity:0, x:-24 }} animate={inView ? { opacity:1, x:0 } : {}} transition={{ delay:0.2 }} style={{ display:'flex', flexDirection: 'column', gap:'18px' }}>
             {[
               { Icon:FaEnvelope, label:'Email', value:'rawatdishita06@gmail.com', href:'mailto:rawatdishita06@gmail.com', color:'#D3968C' },
               { Icon:FaMapMarkerAlt, label:'Location', value:'India 🇮🇳', color:'#839958' },
-              { Icon:FaPhone, label:'Phone', value:'+91 98765 43210', color:'#105666' },
             ].map(({ Icon, label, value, href, color }) => {
               const Content = (
                 <motion.div key={label} className="portfolio-card" whileHover={{ x:5, borderColor:color }} style={{ display:'flex', gap:'16px', alignItems:'center', padding:'18px 20px', textDecoration:'none' }}>

@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 const education = [
-  { degree: "Master's in Computer Science", school: 'University of Technology', period: '2021 – 2023', gpa: '4.0 GPA', color: '#D3968C' },
-  { degree: "Bachelor's in Software Engineering", school: 'Institute of Technology', period: '2017 – 2021', gpa: '3.8 GPA', color: '#839958' },
-  { degree: 'Web Development Bootcamp', school: 'Coding Academy', period: '2016', gpa: 'Excellence', color: '#105666' },
+  { degree: "Bachelor's of Computer Application", school: 'Institute of Information Technology and Management', period: '2024 – Present', gpa: '9.77 CGPA', color: '#D3968C' },
+  { degree: "CLASS XII", school: 'CBSE', period: '2023 – 2024', gpa: '91.2% -- Best 4', color: '#839958' },
+  { degree: 'CALSS X', school: 'CBSE', period: '2021 - 2022', gpa: '82.4% -- Best 4', color: '#105666' },
 ];
 
 /* SVG botanical leaves decoration */
@@ -12,38 +12,38 @@ const LeafDecoration = () => (
   <svg viewBox="0 0 300 500" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', maxWidth: '300px', opacity: 0.75 }}>
     {/* Main large monstera leaf */}
     <path d="M150 480 C150 480 120 380 90 300 C60 220 30 160 50 80 C80 100 110 160 130 240 C150 320 155 400 150 480Z"
-      fill="#0d3d2a" stroke="#839958" strokeWidth="1.5" opacity="0.9"/>
+      fill="#0d3d2a" stroke="#839958" strokeWidth="1.5" opacity="0.9" />
     <path d="M150 480 C150 480 180 380 210 300 C240 220 270 160 250 80 C220 100 190 160 170 240 C150 320 145 400 150 480Z"
-      fill="#0d4a30" stroke="#839958" strokeWidth="1.5" opacity="0.8"/>
+      fill="#0d4a30" stroke="#839958" strokeWidth="1.5" opacity="0.8" />
 
     {/* Monstera split details on left leaf */}
-    <path d="M100 280 C80 265 65 250 70 230" stroke="#839958" strokeWidth="1" opacity="0.5" fill="none"/>
-    <path d="M108 320 C85 308 70 295 72 270" stroke="#839958" strokeWidth="1" opacity="0.4" fill="none"/>
-    <path d="M95 240 C78 228 66 212 72 190" stroke="#839958" strokeWidth="1" opacity="0.45" fill="none"/>
+    <path d="M100 280 C80 265 65 250 70 230" stroke="#839958" strokeWidth="1" opacity="0.5" fill="none" />
+    <path d="M108 320 C85 308 70 295 72 270" stroke="#839958" strokeWidth="1" opacity="0.4" fill="none" />
+    <path d="M95 240 C78 228 66 212 72 190" stroke="#839958" strokeWidth="1" opacity="0.45" fill="none" />
 
     {/* Veins left leaf */}
-    <path d="M125 370 C100 340 85 310 90 270" stroke="#a4b878" strokeWidth="0.8" opacity="0.4" fill="none"/>
-    <path d="M115 300 C92 282 80 258 88 225" stroke="#a4b878" strokeWidth="0.8" opacity="0.35" fill="none"/>
+    <path d="M125 370 C100 340 85 310 90 270" stroke="#a4b878" strokeWidth="0.8" opacity="0.4" fill="none" />
+    <path d="M115 300 C92 282 80 258 88 225" stroke="#a4b878" strokeWidth="0.8" opacity="0.35" fill="none" />
 
     {/* Veins right leaf */}
-    <path d="M175 370 C200 340 215 310 210 270" stroke="#a4b878" strokeWidth="0.8" opacity="0.4" fill="none"/>
+    <path d="M175 370 C200 340 215 310 210 270" stroke="#a4b878" strokeWidth="0.8" opacity="0.4" fill="none" />
 
     {/* Fern frond top left */}
-    <path d="M80 120 C55 100 35 70 45 40 C60 55 75 80 82 110Z" fill="#0d3d2a" stroke="#839958" strokeWidth="1" opacity="0.7"/>
-    <path d="M80 120 C65 95 58 70 68 45" stroke="#a4b878" strokeWidth="0.7" opacity="0.4" fill="none"/>
+    <path d="M80 120 C55 100 35 70 45 40 C60 55 75 80 82 110Z" fill="#0d3d2a" stroke="#839958" strokeWidth="1" opacity="0.7" />
+    <path d="M80 120 C65 95 58 70 68 45" stroke="#a4b878" strokeWidth="0.7" opacity="0.4" fill="none" />
 
     {/* Fern frond top right */}
-    <path d="M220 120 C245 100 265 70 255 40 C240 55 225 80 218 110Z" fill="#0d4a30" stroke="#839958" strokeWidth="1" opacity="0.65"/>
+    <path d="M220 120 C245 100 265 70 255 40 C240 55 225 80 218 110Z" fill="#0d4a30" stroke="#839958" strokeWidth="1" opacity="0.65" />
 
     {/* Small lotus bud top */}
-    <ellipse cx="150" cy="55" rx="16" ry="26" fill="#D3968C" opacity="0.45" transform="rotate(-12 150 55)"/>
-    <ellipse cx="150" cy="55" rx="16" ry="26" fill="#D3968C" opacity="0.45" transform="rotate(12 150 55)"/>
-    <ellipse cx="150" cy="50" rx="11" ry="20" fill="#e8b0a6" opacity="0.55"/>
-    <circle cx="150" cy="40" r="8" fill="#F7F4D5" opacity="0.4"/>
+    <ellipse cx="150" cy="55" rx="16" ry="26" fill="#D3968C" opacity="0.45" transform="rotate(-12 150 55)" />
+    <ellipse cx="150" cy="55" rx="16" ry="26" fill="#D3968C" opacity="0.45" transform="rotate(12 150 55)" />
+    <ellipse cx="150" cy="50" rx="11" ry="20" fill="#e8b0a6" opacity="0.55" />
+    <circle cx="150" cy="40" r="8" fill="#F7F4D5" opacity="0.4" />
 
     {/* Droplets */}
-    {[{x:95,y:200},{x:115,y:160},{x:185,y:195},{x:170,y:155}].map((p,i) => (
-      <ellipse key={i} cx={p.x} cy={p.y} rx="2.5" ry="4" fill="#105666" opacity="0.35" transform={`rotate(${i%2?15:-15} ${p.x} ${p.y})`}/>
+    {[{ x: 95, y: 200 }, { x: 115, y: 160 }, { x: 185, y: 195 }, { x: 170, y: 155 }].map((p, i) => (
+      <ellipse key={i} cx={p.x} cy={p.y} rx="2.5" ry="4" fill="#105666" opacity="0.35" transform={`rotate(${i % 2 ? 15 : -15} ${p.x} ${p.y})`} />
     ))}
 
     {/* Ground scatter */}

@@ -251,10 +251,10 @@ const About = () => {
             transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.3 }}
             style={{ paddingTop: '8px' }}
           >
-            {/* Memory label */}
+            {/* Snippets label */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
               <div style={{ width: '20px', height: '1px', background: '#D3968C' }} />
-              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.62rem', letterSpacing: '0.24em', textTransform: 'uppercase', color: '#D3968C' }}>Memories</span>
+              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.62rem', letterSpacing: '0.24em', textTransform: 'uppercase', color: '#D3968C' }}>Snippets</span>
             </div>
             <PhotoStack />
 

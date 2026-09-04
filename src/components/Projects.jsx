@@ -38,7 +38,7 @@ const PROJECTS = [
     description:
       'An end-to-end automated machine learning platform allowing users to clean datasets, train multiple models, compare metrics, and deploy models seamlessly.',
     tags: ['Python', 'Data Science', 'Machine Learning', 'Streamlit'],
-    github: 'https://github.com/DishitaRawat',
+    github: 'https://github.com/DishitaRawat/MLCrafter-Version2',
     demo: '#',
     color: '#D3968C',
     icon: '⚙️',

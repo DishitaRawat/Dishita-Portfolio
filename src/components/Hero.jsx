@@ -92,7 +92,7 @@ const Hero = () => (
             letterSpacing: '-0.02em',
           }}>
             Dishita{' '}
-            <span style={{ fontStyle: 'italic', background: 'linear-gradient(135deg, #D3968C, #e8b0a6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ fontStyle: 'italic', background: 'linear-gradient(135deg, #D3968C, #e8b0a6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', paddingRight: '0.1em' }}>
               Rawat
             </span>
           </motion.h1>

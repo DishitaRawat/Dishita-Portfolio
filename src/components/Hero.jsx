@@ -91,13 +91,10 @@ const Hero = () => (
             color: '#F7F4D5', margin: '0 0 6px',
             letterSpacing: '-0.02em',
           }}>
-            Hi, I'm{' '}
-            <span style={{
-              fontStyle: 'italic',
-              background: 'linear-gradient(135deg, #D3968C, #e8b4a8)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>Dishita.</span>
+            Dishita{' '}
+            <span style={{ fontStyle: 'italic', background: 'linear-gradient(135deg, #D3968C, #e8b0a6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              Rawat
+            </span>
           </motion.h1>
 
           {/* Role */}
